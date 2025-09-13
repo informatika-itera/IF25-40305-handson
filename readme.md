@@ -6,7 +6,7 @@
 
 This repository contains hands-on materials for the [IF25-40305](https://mctm.web.id/course/if25-40305) (before: IF4021) course at the [Informatics Department](https://if.itera.ac.id), Institut Teknologi Sumatera ([ITERA](https://itera.ac.id)).
 
-<h2 align="center"><b>Table of Contents</b></h2>
+<h2 align="center"><b>Table of Contents.</b></h2>
 
 | No. | Topic             | Description                   | Notebook                                                                                                                                                                                           |
 | --- | ----------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
