@@ -29,6 +29,7 @@ This repository contains hands-on materials for the [IF25-40305](https://mctm.we
 ### Pertemuan 4
 
 _Upcoming Meeting_
+
 **Hari/Tanggal:** Selasa, 16 September 2025  
 **Waktu:** 13.00 - 15.40
 **Ruang:** GKU1-404b
