@@ -26,11 +26,11 @@ This repository contains hands-on materials for the [IF25-40305](https://mctm.we
 
 > **DEFAULT:** Hari Selasa di [GK1.404b](https://maps.app.goo.gl/XEhjvYyzmiLPRjqdA) Jam 13.00 – 15.40
 
-### Pertemuan 4
+### Pertemuan 5
 
 _Upcoming Meeting_
 
-**Hari/Tanggal:** Selasa, 16 September 2025  
+**Hari/Tanggal:** Selasa, 23 September 2025  
 **Waktu:** 13.00 - 15.40
 **Ruang:** GKU1-404b
 
