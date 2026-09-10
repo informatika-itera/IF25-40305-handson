@@ -1,0 +1,32 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Python & Jupyter
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Output directories & generated files
+output/
+outputaudio/
+recordings/
+*.log
+
+# Large binary files & ML models (download via release asset or script)
+*.dat
+*.bin
+*.weights
+*.h5
+*.onnx
+
+# IDEs
+.vscode/
+.idea/
