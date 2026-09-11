@@ -3,7 +3,7 @@
 
 <p align="center">
   <b>Program Studi Teknik Informatika — Institut Teknologi Sumatera (ITERA)</b><br>
-  Tahun Ajaran 2026/2027 · Semester Ganjil · 3 SKS
+  Tahun Ajaran 2026/2027 · Semester Ganjil
 </p>
 
 <p align="center">
@@ -20,12 +20,8 @@
 |---|---|
 | **Mata Kuliah** | **Sistem Teknologi Multimedia** (*Multimedia: System & Technology*) |
 | **Kode Mata Kuliah** | **IF25-40305** *(Kurikulum Sebelumnya: IF4021)* |
-| **Bobot SKS** | **3 (tiga) SKS** — Beban belajar 135 jam/semester (Peraturan Rektor ITERA No. 2 Th 2024) |
 | **Dosen Penanggung Jawab** | **Martin C.T. Manullang, S.T., M.T., Ph.D.** |
 | **Jadwal Kuliah** | **Kamis, 13.00 – 15.40 WIB** |
-| **Ruang Kuliah** | Menyesuaikan (TBA / Gedung Kuliah Umum ITERA) |
-| **Portal Resmi** | [mctm.web.id/course/if25-40305](https://mctm.web.id/course/if25-40305) |
-| **LMS Perkuliahan** | [kuliah2.itera.ac.id](https://kuliah2.itera.ac.id) |
 
 ---
 
@@ -89,4 +85,3 @@ cd IF25-40305-handson
 - 🌐 **Portal Perkuliahan STM**: [https://mctm.web.id/course/if25-40305](https://mctm.web.id/course/if25-40305)
 - 📋 **Silabus / RPS Lengkap**: [https://mctm.web.id/stm/rps](https://mctm.web.id/stm/rps)
 - 📜 **Kontrak Kuliah Lengkap**: [https://mctm.web.id/stm/rules](https://mctm.web.id/stm/rules)
-- 🎓 **LMS Perkuliahan**: [https://kuliah2.itera.ac.id](https://kuliah2.itera.ac.id)
