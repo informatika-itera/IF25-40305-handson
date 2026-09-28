@@ -39,10 +39,24 @@ Praktikum dan tugas hands-on menggunakan ekosistem **Python 3.12**:
 
 - **Python Version**: `Python 3.12` *(Disarankan menggunakan package manager [`uv`](https://docs.astral.sh/uv/) untuk isolasi environment yang cepat & ringan; alternatif `conda` / `venv` diperbolehkan)*.
 - **Library Inti**:
-  - **Audio Processing & MIR**: `librosa`, `soundfile`, `scipy`, `pyloudnorm`
+  - **Audio Processing & MIR**: `librosa`, `soundfile`, `scipy`, `pyloudnorm`, `pedalboard`
   - **Citra & Kompresi**: `opencv-python` (`cv2`), `numpy`, `matplotlib`, `pillow`
   - **Vision AI, Landmark & Tracking**: `mediapipe`, `dlib`, `pyzbar`
   - **Tools & Multimedia Backend**: `jupyter` / `ipykernel`, `ffmpeg`
+
+---
+
+## 📂 Modul Hands-on Semester Berjalan (2026/2027 Ganjil)
+
+Daftar modul notebook interaktif pada branch `main`:
+
+| No | Modul | Topik Utama | Berkas Notebook |
+|---|---|---|---|
+| **01** | **Audio Resampling** | Downsampling, upsampling, aliasing & filter anti-aliasing | [`1_audio_resampling.ipynb`](notebook_handson/1_audio_resampling.ipynb) |
+| **02** | **Visual Representation** | Waveform, spektrum FFT, spektrogram STFT, Mel-spec & RTA | [`2_audio_visual_representation.ipynb`](notebook_handson/2_audio_visual_representation.ipynb) |
+| **03** | **Rekaman Kelas** | Analisis visual & restorasi rekaman kuliah di ruang kelas | [`3_audio_dikelas_visualization.ipynb`](notebook_handson/3_audio_dikelas_visualization.ipynb) |
+| **04** | **Loudness & Normalization** | Peak dBFS, True Peak, RMS, Crest Factor, LUFS, Batch Normalization & Crossfade | [`4_audio_loudness_normalization.ipynb`](notebook_handson/4_audio_loudness_normalization.ipynb) |
+| **05** | **Dynamic Processing** | Compressor, Brickwall Limiter, Noise Gate, Silence Trimming & Mastering Chain | [`5_audio_dynamic_processing.ipynb`](notebook_handson/5_audio_dynamic_processing.ipynb) |
 
 ---
 

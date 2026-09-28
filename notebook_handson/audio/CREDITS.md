@@ -26,6 +26,44 @@ mendemonstrasikan keempat representasi visual audio.
 | **Sumber** | https://www.openslr.org/12/ |
 | **Modifikasi** | Potongan 4 detik, mono 22.050 Hz 16-bit PCM |
 
+## `audio_dikelas.m4a` / `audio_dikelas.wav`
+
+| | |
+|---|---|
+| **Sumber** | Rekaman langsung di kelas IF25-40305, 24 September 2026 |
+| **Asli** | `audio_dikelas.m4a` — AAC-LC, mono 48.000 Hz, 6,5 detik |
+| **Modifikasi** | `audio_dikelas.wav` — dikonversi dengan `ffmpeg` ke mono 48.000 Hz 16-bit PCM, penguatan −8,8 dB agar puncak −1 dBFS (hasil decode AAC berpuncak ≈2,45 sehingga akan ter-*clipping* tanpa penurunan ini) |
+
+## `drums_sample.wav`
+
+| | |
+|---|---|
+| **Judul** | Choice - Drum-bass |
+| **Pencipta** | Admiral Bob |
+| **Lisensi** | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| **Sumber** | http://ccmixter.org/files/admiralbob77/31574 (didistribusikan melalui `librosa` test data) |
+| **Modifikasi** | Potongan 8 detik beat drum & bass, mono 22.050 Hz 16-bit PCM — ideal untuk demonstrasi transien perkusi, kompresi attack/release, dan crest factor tinggi |
+
+## `classical_sample.wav`
+
+| | |
+|---|---|
+| **Karya** | Hungarian Dance No. 5 in F-sharp minor |
+| **Komponis** | Johannes Brahms |
+| **Lisensi** | [Public Domain (Musopen)](https://musopen.org/) |
+| **Sumber** | Musopen / Wikimedia Commons (didistribusikan melalui `librosa` test data) |
+| **Modifikasi** | Potongan 10 detik dinamika orkestra gesek, mono 22.050 Hz 16-bit PCM — rentang dinamika lebar (*wide dynamic range*) |
+
+## `podcast_sample.wav`
+
+| | |
+|---|---|
+| **Korpus** | LibriSpeech ASR Corpus |
+| **Pembaca** | Relawan LibriVox |
+| **Lisensi** | [Public Domain](https://librivox.org/) |
+| **Sumber** | https://www.openslr.org/12/ (didistribusikan melalui `librosa` test data) |
+| **Modifikasi** | Potongan 9 detik dialog/narasi vokal, mono 22.050 Hz 16-bit PCM — ideal untuk normalisasi dialog, noise gating, dan silence trimming |
+
 ---
 
 Lisensi CC BY 4.0 mewajibkan pencantuman atribusi. Berkas ini adalah pemenuhan kewajiban
