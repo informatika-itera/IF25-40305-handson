@@ -60,6 +60,7 @@ Daftar modul notebook interaktif pada branch `main`:
 | **06** | **Music Information Retrieval** | Pitch shift & time stretch, deteksi pitch (YIN/pYIN), onset/tempo/beat, chroma & kunci lagu (Krumhansl–Schmuckler), chord recognition, mini-Shazam | [`6_audio_mir.ipynb`](notebook_handson/6_audio_mir.ipynb) |
 | **07** | **Struktur Data Citra & Warna** | ndarray (H, W, C), bit depth & overflow uint8, imread/imwrite, PNG vs JPEG, Grayscale, HSV, segmentasi warna & histogram | [`7_image_structure_color.ipynb`](notebook_handson/7_image_structure_color.ipynb) |
 | **08** | **Transformasi Geometris & Anotasi** | Alamat piksel (x, y) vs [y, x], translasi & flipping, resize & interpolasi (nearest/bilinear/area, aliasing), rotasi, matriks affine 2×3, rotasi tanpa terpotong, bounding box & label, bonus perspektif — dengan 9 challenge ber-autocek | [`8_image_geometry_annotation.ipynb`](notebook_handson/8_image_geometry_annotation.ipynb) |
+| **09** | **Filtering Spasial, Deteksi Tepi & Kontur** | Konvolusi manual vs `filter2D`, box/Gaussian/median blur & PSNR, unsharp mask, Sobel & Canny, threshold Otsu & morfologi, kontur + fitur bentuk (studi kasus alat tulis), bonus deteksi kertas otomatis — latihan mandiri dengan sel ✏️ Coba Ubah | [`9_image_filtering_edges_contours.ipynb`](notebook_handson/9_image_filtering_edges_contours.ipynb) |
 
 ---
 
