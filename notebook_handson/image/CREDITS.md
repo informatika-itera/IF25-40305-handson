@@ -16,5 +16,6 @@ sehingga bebas dipakai, diubah, dan didistribusikan ulang.
 | `rocket.jpg` | Peluncuran Falcon 9 – DSCOVR | SpaceX Photos (https://www.flickr.com/photos/spacexphotos/16511594820/) | Domain publik | — |
 | `alat_tulis.png` | Alat tulis di atas kertas (pensil, spidol, penghapus, sticky note, koin, tutup botol) — citra sintetis untuk Modul 09 | Dibuat secara prosedural oleh pengampu (Martin C.T. Manullang) dengan OpenCV | CC0 | — |
 | `kertas_meja.jpg` | Dokumen di atas meja kayu, dipotret miring — citra sintetis untuk Modul 09 | Dibuat secara prosedural oleh pengampu (Martin C.T. Manullang) dengan OpenCV | CC0 | — |
+| `latar_pantai.jpg` | Latar pantai (langit, matahari, laut, pasir) — citra sintetis untuk komposit green screen Modul 10 | Dibuat secara prosedural oleh pengampu (Martin C.T. Manullang) dengan OpenCV | CC0 | — |
 
 Referensi pustaka: van der Walt, S., et al. (2014). scikit-image: Image processing in Python. *PeerJ, 2*, e453.

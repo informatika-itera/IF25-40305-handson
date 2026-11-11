@@ -33,3 +33,6 @@ recordings/
 # IDEs
 .vscode/
 .idea/
+
+# Model kecil yang dibutuhkan script hands-on (YuNet, MIT)
+!notebook_handson/model/*.onnx

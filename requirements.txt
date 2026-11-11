@@ -13,7 +13,7 @@ pyloudnorm>=0.1.1
 pedalboard>=0.9.0
 
 # Computer Vision & Media Processing
-opencv-python>=4.9.0
+opencv-contrib-python>=4.9.0   # versi contrib: berisi tracker CSRT/KCF (Modul 10)
 pillow>=10.2.0
 
 # Vision AI & Tracking (used in Weeks 11-14)
