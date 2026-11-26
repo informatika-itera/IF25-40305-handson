@@ -18,6 +18,8 @@ Cara kerjanya (setiap frame):
        - tracker kehilangan wajah, atau
        - kotak wajah sudah bergeser jauh dari posisi saat terakhir dideteksi, atau
        - Anda menekan tombol d.
+     Karena KCF bekerja di frame 320 px, posisinya meloncat per 4 px di frame asli (1 px kecil = 4 px asli).
+     Supaya kotak tidak bergetar, posisinya DIHALUSKAN: halus = 0,7 x halus lama + 0,3 x posisi baru (EMA).
   2. AMBIL WARNA KULIT dari SELURUH WAJAH, seperti POS (Wang dkk., 2017). Kotak wajah dipersempit ke
      bagian tengahnya (60% lebar, 80% tinggi) supaya latar, rambut, dan telinga tidak ikut terhitung.
      Rata-rata R, G, B di dalamnya (diambil dari frame ASLI, bukan yang diperkecil) = 3 angka per frame.
@@ -77,6 +79,7 @@ BATAS_GESER = 0.35        # deteksi ulang kalau kotak bergeser > 35% lebar wajah
 SETIAP = 0.5              # BPM diperbarui setiap 0,5 detik
 LEBAR_PROSES = 320        # deteksi & tracking di frame selebar 320 px (jauh lebih cepat)
 KULIT_LEBAR, KULIT_TINGGI = 0.6, 0.8   # bagian tengah kotak wajah yang dirata-rata (buang latar & rambut)
+HALUS = 0.3               # bobot posisi baru saat menghaluskan kotak (kecil = lebih tenang tapi lebih telat)
 
 
 def buat_tracker():
@@ -170,6 +173,7 @@ def gambar_gelombang(img, s, warna):
 # --- 4. Lingkaran utama ---------------------------------------------------------
 METODE = "POS"
 tracker, kotak = None, None
+halus = None                         # kotak wajah (ukuran asli) yang sudah dihaluskan -> ROI tidak bergetar
 kotak_awal = None                    # kotak saat terakhir dideteksi (untuk cek "bergeser jauh")
 data = deque()                       # (waktu, R, G, B) untuk jendela 10 detik
 rekaman = []                         # semua sampel sejak mulai (untuk disimpan ke CSV)
@@ -236,8 +240,9 @@ while True:
 
     # (c) rata-rata warna kulit di bagian tengah wajah
     if kotak is not None and tracker is not None:
-        kotak_asli = tuple(v / skala for v in kotak)            # kembalikan ke ukuran frame asli
-        kulit = kotak_kulit(kotak_asli, w, h)
+        kotak_asli = np.array(kotak, dtype=float) / skala       # kembalikan ke ukuran frame asli
+        halus = kotak_asli if halus is None else (1 - HALUS) * halus + HALUS * kotak_asli
+        kulit = kotak_kulit(halus, w, h)
         if kulit is not None:
             x0, y0, x1, y1 = kulit
             b_, g_, r_ = frame[y0:y1, x0:x1].mean(axis=(0, 1))    # OpenCV = BGR
@@ -245,7 +250,7 @@ while True:
             rekaman.append((sekarang, r_, g_, b_))
             if tampil_roi:
                 cv2.rectangle(frame, (x0, y0), (x1, y1), (107, 158, 46), 2)
-        x, y, lw, lh = (int(v) for v in kotak_asli)
+        x, y, lw, lh = (int(v) for v in halus)
         cv2.rectangle(frame, (x, y), (x + lw, y + lh), (255, 255, 255), 1)
     else:
         status = status or "tidak ada wajah - hadap ke kamera"
