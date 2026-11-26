@@ -19,7 +19,10 @@ Cara kerjanya (setiap frame):
        - kotak wajah sudah bergeser jauh dari posisi saat terakhir dideteksi, atau
        - Anda menekan tombol d.
      Karena KCF bekerja di frame 320 px, posisinya meloncat per 4 px di frame asli (1 px kecil = 4 px asli).
-     Supaya kotak tidak bergetar, posisinya DIHALUSKAN: halus = 0,7 x halus lama + 0,3 x posisi baru (EMA).
+     Supaya kotak tidak bergetar, posisinya DIHALUSKAN dengan dua aturan:
+       - zona mati: geser < 3% lebar wajah diabaikan (kotak diam total saat wajah diam), dan
+       - kalau lebih, kotak menyusul pelan: halus = 0,7 x halus lama + 0,3 x posisi baru (EMA).
+     (EMA saja membuat kotak tidak pernah diam = getaran mikro; zona mati saja membuat kotak meloncat.)
   2. AMBIL WARNA KULIT dari SELURUH WAJAH, seperti POS (Wang dkk., 2017). Kotak wajah dipersempit ke
      bagian tengahnya (60% lebar, 80% tinggi) supaya latar, rambut, dan telinga tidak ikut terhitung.
      Rata-rata R, G, B di dalamnya (diambil dari frame ASLI, bukan yang diperkecil) = 3 angka per frame.
@@ -80,6 +83,7 @@ SETIAP = 0.5              # BPM diperbarui setiap 0,5 detik
 LEBAR_PROSES = 320        # deteksi & tracking di frame selebar 320 px (jauh lebih cepat)
 KULIT_LEBAR, KULIT_TINGGI = 0.6, 0.8   # bagian tengah kotak wajah yang dirata-rata (buang latar & rambut)
 HALUS = 0.3               # bobot posisi baru saat menghaluskan kotak (kecil = lebih tenang tapi lebih telat)
+ZONA_MATI = 0.03          # geser kotak < 3% lebar wajah diabaikan supaya kotak diam saat wajah diam
 
 
 def buat_tracker():
@@ -241,7 +245,10 @@ while True:
     # (c) rata-rata warna kulit di bagian tengah wajah
     if kotak is not None and tracker is not None:
         kotak_asli = np.array(kotak, dtype=float) / skala       # kembalikan ke ukuran frame asli
-        halus = kotak_asli if halus is None else (1 - HALUS) * halus + HALUS * kotak_asli
+        if halus is None:
+            halus = kotak_asli
+        elif np.abs(kotak_asli - halus).max() > ZONA_MATI * kotak_asli[2]:   # geser kecil diabaikan
+            halus = (1 - HALUS) * halus + HALUS * kotak_asli                 # geser sungguhan: susul pelan
         kulit = kotak_kulit(halus, w, h)
         if kulit is not None:
             x0, y0, x1, y1 = kulit
