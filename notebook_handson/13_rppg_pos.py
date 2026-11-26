@@ -13,12 +13,13 @@ Tombol:  q = keluar   m = ganti metode (POS / GREEN)   d = paksa deteksi wajah u
 Cara kerjanya (setiap frame):
   1. CARI WAJAH SEKALI, LALU IKUTI. Detektor wajah YuNet (Modul 11) hanya dijalankan di awal.
      Frame berikutnya kotak wajah cukup diikuti tracker KCF (Modul 10) yang jauh lebih ringan,
-     jadi FPS tidak turun. Deteksi ulang HANYA kalau:
+     jadi FPS tidak turun. Keduanya bekerja di salinan frame yang DIPERKECIL (lebar 320 px):
+     KCF di frame 720p butuh ~70 ms, di 320 px hanya ~5 ms. Deteksi ulang HANYA kalau:
        - tracker kehilangan wajah, atau
        - kotak wajah sudah bergeser jauh dari posisi saat terakhir dideteksi, atau
        - Anda menekan tombol d.
   2. AMBIL WARNA KULIT. Tiga kotak kecil (dahi + dua pipi) ikut bergerak bersama kotak wajah.
-     Rata-rata R, G, B di dalamnya = 3 angka per frame.
+     Rata-rata R, G, B di dalamnya (diambil dari frame ASLI, bukan yang diperkecil) = 3 angka per frame.
   3. HITUNG BPM (setiap 0,5 detik) dari 10 detik terakhir:
        samakan jarak waktu (30 titik per detik) -> POS (atau GREEN) -> buang tren
        -> bandpass 0,7-3 Hz (42-180 BPM) -> FFT -> frekuensi paling kuat x 60 = BPM.
@@ -48,6 +49,10 @@ if SIMPAN in argumen:
 sumber = argumen[0] if argumen else 0
 WEBCAM = sumber == 0
 cap = cv2.VideoCapture(sumber)
+if WEBCAM:                                   # minta 720p 30 FPS; 1080p hanya memperberat tanpa manfaat
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cap.set(cv2.CAP_PROP_FPS, 30)
 FPS_FILE = cap.get(cv2.CAP_PROP_FPS) or 30
 if FPS_FILE < 1 or FPS_FILE > 120:
     FPS_FILE = 30
@@ -69,6 +74,7 @@ MINIMAL = 6.0             # BPM pertama muncul setelah 6 detik data
 BPM_MIN, BPM_MAX = 42, 180
 BATAS_GESER = 0.35        # deteksi ulang kalau kotak bergeser > 35% lebar wajah sejak deteksi terakhir
 SETIAP = 0.5              # BPM diperbarui setiap 0,5 detik
+LEBAR_PROSES = 320        # deteksi & tracking di frame selebar 320 px (jauh lebih cepat)
 
 
 def buat_tracker():
@@ -207,11 +213,14 @@ while True:
     h, w = frame.shape[:2]
     sekarang = (time.time() - t0) if WEBCAM else nomor / FPS_FILE
     status = ""
+    # salinan kecil untuk detektor & tracker; kotak wajah disimpan dalam koordinat frame kecil ini
+    skala = min(1.0, LEBAR_PROSES / w)
+    kecil = cv2.resize(frame, None, fx=skala, fy=skala, interpolation=cv2.INTER_AREA)
 
     # (a) ikuti wajah dengan tracker (ringan)
     if tracker is not None and not paksa_deteksi:
         mulai = time.perf_counter()
-        ok_lacak, kotak_baru = tracker.update(frame)
+        ok_lacak, kotak_baru = tracker.update(kecil)
         ms_lacak = 0.9 * ms_lacak + 0.1 * (time.perf_counter() - mulai) * 1000
         if not ok_lacak:
             tracker, status = None, "tracker kehilangan wajah -> deteksi ulang"
@@ -224,27 +233,28 @@ while True:
     # (b) cari wajah dengan detektor (berat) hanya kalau perlu
     if tracker is None or paksa_deteksi:
         mulai = time.perf_counter()
-        hasil = cari_wajah(frame)
+        hasil = cari_wajah(kecil)
         ms_deteksi = (time.perf_counter() - mulai) * 1000
         paksa_deteksi = False
         if hasil is not None:
             kotak, relatif = hasil
             kotak_awal = kotak
             tracker = buat_tracker()
-            tracker.init(frame, tuple(int(v) for v in kotak))
+            tracker.init(kecil, tuple(int(v) for v in kotak))
             n_deteksi += 1
         else:
             tracker, kotak = None, None
 
     # (c) rata-rata warna kulit di dahi + pipi
     if kotak is not None and tracker is not None:
-        rois = kotak_roi(kotak, relatif, w, h)
+        kotak_asli = tuple(v / skala for v in kotak)            # kembalikan ke ukuran frame asli
+        rois = kotak_roi(kotak_asli, relatif, w, h)
         if rois:
             piksel = np.concatenate([frame[y0:y1, x0:x1].reshape(-1, 3) for x0, y0, x1, y1 in rois])
             b_, g_, r_ = piksel.mean(axis=0)                     # OpenCV = BGR
             data.append((sekarang, r_, g_, b_))
             rekaman.append((sekarang, r_, g_, b_))
-        x, y, lw, lh = (int(v) for v in kotak)
+        x, y, lw, lh = (int(v) for v in kotak_asli)
         cv2.rectangle(frame, (x, y), (x + lw, y + lh), (255, 255, 255), 1)
         if tampil_roi:
             for x0, y0, x1, y1 in rois:
