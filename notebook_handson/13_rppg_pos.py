@@ -8,7 +8,7 @@ Cara menjalankan (di laptop sendiri, BUKAN di Colab, karena butuh webcam & jende
     python 13_rppg_pos.py video.mp4 --simpan hasil.mp4   # tanpa jendela, hasil disimpan ke file
 
 Tombol:  q = keluar   m = ganti metode (POS / GREEN)   d = paksa deteksi wajah ulang
-         r = mulai hitung ulang   s = simpan sinyal R,G,B ke CSV (untuk notebook)   k = kotak ROI on/off
+         r = mulai hitung ulang   s = simpan sinyal R,G,B ke CSV (untuk notebook)   k = kotak kulit on/off
 
 Cara kerjanya (setiap frame):
   1. CARI WAJAH SEKALI, LALU IKUTI. Detektor wajah YuNet (Modul 11) hanya dijalankan di awal.
@@ -18,7 +18,8 @@ Cara kerjanya (setiap frame):
        - tracker kehilangan wajah, atau
        - kotak wajah sudah bergeser jauh dari posisi saat terakhir dideteksi, atau
        - Anda menekan tombol d.
-  2. AMBIL WARNA KULIT. Tiga kotak kecil (dahi + dua pipi) ikut bergerak bersama kotak wajah.
+  2. AMBIL WARNA KULIT dari SELURUH WAJAH, seperti POS (Wang dkk., 2017). Kotak wajah dipersempit ke
+     bagian tengahnya (60% lebar, 80% tinggi) supaya latar, rambut, dan telinga tidak ikut terhitung.
      Rata-rata R, G, B di dalamnya (diambil dari frame ASLI, bukan yang diperkecil) = 3 angka per frame.
   3. HITUNG BPM (setiap 0,5 detik) dari 10 detik terakhir:
        samakan jarak waktu (30 titik per detik) -> POS (atau GREEN) -> buang tren
@@ -75,6 +76,7 @@ BPM_MIN, BPM_MAX = 42, 180
 BATAS_GESER = 0.35        # deteksi ulang kalau kotak bergeser > 35% lebar wajah sejak deteksi terakhir
 SETIAP = 0.5              # BPM diperbarui setiap 0,5 detik
 LEBAR_PROSES = 320        # deteksi & tracking di frame selebar 320 px (jauh lebih cepat)
+KULIT_LEBAR, KULIT_TINGGI = 0.6, 0.8   # bagian tengah kotak wajah yang dirata-rata (buang latar & rambut)
 
 
 def buat_tracker():
@@ -86,7 +88,7 @@ def buat_tracker():
 
 
 def cari_wajah(frame):
-    """YuNet -> (kotak wajah, 3 ROI relatif terhadap kotak) atau None."""
+    """YuNet -> kotak wajah (x, y, lebar, tinggi) atau None."""
     h, w = frame.shape[:2]
     detektor.setInputSize((w, h))
     _, wajah = detektor.detect(frame)
@@ -95,29 +97,17 @@ def cari_wajah(frame):
     f = max(wajah, key=lambda r: r[2] * r[3])               # wajah terbesar = paling dekat
     x, y = max(0.0, float(f[0])), max(0.0, float(f[1]))   # kotak dijaga tetap di dalam frame
     lw, lh = min(float(f[2]), w - x - 1), min(float(f[3]), h - y - 1)
-    mata_ka, mata_ki = f[4:6], f[6:8]                       # 5 titik YuNet: mata, mata, hidung, mulut, mulut
-    d = float(np.linalg.norm(mata_ki - mata_ka))            # jarak antar mata = "penggaris" wajah
-    tengah = (mata_ka + mata_ki) / 2
-    roi = [  # (pusat x, pusat y, lebar, tinggi) dalam piksel
-        (tengah[0], tengah[1] - 0.75 * d, 0.9 * d, 0.4 * d),          # dahi
-        (mata_ka[0], mata_ka[1] + 0.6 * d, 0.4 * d, 0.35 * d),        # pipi
-        (mata_ki[0], mata_ki[1] + 0.6 * d, 0.4 * d, 0.35 * d),        # pipi
-    ]
-    # simpan ROI RELATIF terhadap kotak wajah, supaya bisa ikut bergeser bersama tracker
-    relatif = [((cx - x) / lw, (cy - y) / lh, rw / lw, rh / lh) for cx, cy, rw, rh in roi]
-    return (x, y, lw, lh), relatif
+    return x, y, lw, lh
 
 
-def kotak_roi(kotak, relatif, w, h):
+def kotak_kulit(kotak, w, h):
+    """Bagian TENGAH kotak wajah (x0, y0, x1, y1), dipotong supaya tetap di dalam frame. None kalau terlalu kecil."""
     x, y, lw, lh = kotak
-    hasil = []
-    for rx, ry, rw, rh in relatif:
-        cx, cy, ww, hh = x + rx * lw, y + ry * lh, rw * lw, rh * lh
-        x0, y0 = int(np.clip(cx - ww / 2, 0, w - 1)), int(np.clip(cy - hh / 2, 0, h - 1))
-        x1, y1 = int(np.clip(cx + ww / 2, 1, w)), int(np.clip(cy + hh / 2, 1, h))
-        if x1 - x0 > 2 and y1 - y0 > 2:
-            hasil.append((x0, y0, x1, y1))
-    return hasil
+    cx, cy = x + lw / 2, y + lh / 2
+    ww, hh = KULIT_LEBAR * lw, KULIT_TINGGI * lh
+    x0, y0 = int(np.clip(cx - ww / 2, 0, w - 1)), int(np.clip(cy - hh / 2, 0, h - 1))
+    x1, y1 = int(np.clip(cx + ww / 2, 1, w)), int(np.clip(cy + hh / 2, 1, h))
+    return (x0, y0, x1, y1) if x1 - x0 > 2 and y1 - y0 > 2 else None
 
 
 def pos(rgb, fs):
@@ -179,7 +169,7 @@ def gambar_gelombang(img, s, warna):
 
 # --- 4. Lingkaran utama ---------------------------------------------------------
 METODE = "POS"
-tracker, kotak, relatif = None, None, None
+tracker, kotak = None, None
 kotak_awal = None                    # kotak saat terakhir dideteksi (untuk cek "bergeser jauh")
 data = deque()                       # (waktu, R, G, B) untuk jendela 10 detik
 rekaman = []                         # semua sampel sejak mulai (untuk disimpan ke CSV)
@@ -203,7 +193,7 @@ def simpan_csv():
     return nama
 
 
-print("Tombol: q keluar | m POS/GREEN | d deteksi ulang | r mulai ulang | s simpan CSV | k kotak ROI")
+print("Tombol: q keluar | m POS/GREEN | d deteksi ulang | r mulai ulang | s simpan CSV | k kotak kulit")
 while True:
     ok, frame = cap.read()
     if not ok:
@@ -237,28 +227,26 @@ while True:
         ms_deteksi = (time.perf_counter() - mulai) * 1000
         paksa_deteksi = False
         if hasil is not None:
-            kotak, relatif = hasil
-            kotak_awal = kotak
+            kotak = kotak_awal = hasil
             tracker = buat_tracker()
             tracker.init(kecil, tuple(int(v) for v in kotak))
             n_deteksi += 1
         else:
             tracker, kotak = None, None
 
-    # (c) rata-rata warna kulit di dahi + pipi
+    # (c) rata-rata warna kulit di bagian tengah wajah
     if kotak is not None and tracker is not None:
         kotak_asli = tuple(v / skala for v in kotak)            # kembalikan ke ukuran frame asli
-        rois = kotak_roi(kotak_asli, relatif, w, h)
-        if rois:
-            piksel = np.concatenate([frame[y0:y1, x0:x1].reshape(-1, 3) for x0, y0, x1, y1 in rois])
-            b_, g_, r_ = piksel.mean(axis=0)                     # OpenCV = BGR
+        kulit = kotak_kulit(kotak_asli, w, h)
+        if kulit is not None:
+            x0, y0, x1, y1 = kulit
+            b_, g_, r_ = frame[y0:y1, x0:x1].mean(axis=(0, 1))    # OpenCV = BGR
             data.append((sekarang, r_, g_, b_))
             rekaman.append((sekarang, r_, g_, b_))
+            if tampil_roi:
+                cv2.rectangle(frame, (x0, y0), (x1, y1), (107, 158, 46), 2)
         x, y, lw, lh = (int(v) for v in kotak_asli)
         cv2.rectangle(frame, (x, y), (x + lw, y + lh), (255, 255, 255), 1)
-        if tampil_roi:
-            for x0, y0, x1, y1 in rois:
-                cv2.rectangle(frame, (x0, y0), (x1, y1), (107, 158, 46), 2)
     else:
         status = status or "tidak ada wajah - hadap ke kamera"
     while data and sekarang - data[0][0] > JENDELA:                # buang data lebih tua dari 10 detik
